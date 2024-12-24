@@ -74,12 +74,15 @@ double degToRad(double deg)
 }
 
 // ========================= PARAMETERS ========================= //
-float ref_WGS[3] = {37, 126, 0};
+float ref_WGS[3] = {0,0,0};
+// float ref_WGS[3] = {37.238838359501933, 126.772902206454901, 0.000000000000000};
+
 double ref_phi = sqrt(1 - e2 * pow(sin(degToRad(ref_WGS[0])), 2));
 double ref_q = (a / ref_phi + ref_WGS[2]) * cos(degToRad(ref_WGS[0]));
 double ref_x = ref_q * cos(degToRad(ref_WGS[1]));
 double ref_y = ref_q * sin(degToRad(ref_WGS[1]));
 double ref_z = ((a * (1 - e2) / ref_phi) + ref_WGS[2]) * sin(degToRad(ref_WGS[0]));
+string zone = "52N";
 
 ENU wgs84ToENU(WGS84 wgs84)
 {
@@ -133,6 +136,28 @@ Euler quatToEnuEuler(Quaternion q)
     return enu_euler;
 }
 
+
+// UTM -> WGS84 변환 함수
+void utmToWgs84(double utm_x, double utm_y, double &lat, double &lon)
+{
+    int zone_num = std::stoi(zone.substr(0, zone.size() - 1)); 
+    bool is_north = (zone.back() == 'N'); 
+    // UTM -> WGS84 변환
+    GeographicLib::UTMUPS::Reverse(zone_num, is_north, utm_x, utm_y, lat, lon);
+}
+
+ENU utmToEnu(double utm_x, double utm_y)
+{
+    double lat, lon, alt = 0.0;
+
+    utmToWgs84(utm_x, utm_y, lat, lon);
+
+    WGS84 wgs84;
+    wgs84.latitude = lat;
+    wgs84.longitude = lon;
+    wgs84.altitude = alt;
+    return wgs84ToENU(wgs84);
+}
 // =========================== METHOD =========================== //
 
 #endif

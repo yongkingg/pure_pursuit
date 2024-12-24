@@ -65,6 +65,7 @@ target_link_libraries(${PROJECT_NAME}_control
 )
 target_link_libraries(${PROJECT_NAME}_gps
     ${catkin_LIBRARIES}
+    Geographic
 )
 ## 3. 의존성 설정 - 필요한 타겟 간의 의존성을 설정함.
 add_dependencies(${PROJECT_NAME}_makeCsv ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
