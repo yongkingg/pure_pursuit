@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   morai_msgs
   message_generation # 커스텀 메세지 활용을 위해 필수적으로 추가.
+  tf
 )
 
 #==================커스텀 메세지 사용 시==================#
@@ -53,7 +54,7 @@ ${catkin_INCLUDE_DIRS}
 add_executable(${PROJECT_NAME}_makeCsv src/makeCsv.cpp)
 add_executable(${PROJECT_NAME}_control src/control.cpp)
 add_executable(${PROJECT_NAME}_gps src/gps.cpp)
-
+add_executable(${PROJECT_NAME}_gps_control src/gps_control.cpp)
 
 ## 2. 종속성 설정 - 이 실행 파일이 필요한 라이브러리나 패키지에 링크되도록 설정함
 
@@ -67,10 +68,16 @@ target_link_libraries(${PROJECT_NAME}_gps
     ${catkin_LIBRARIES}
     Geographic
 )
+target_link_libraries(${PROJECT_NAME}_gps_control
+    ${catkin_LIBRARIES}
+    Geographic
+)
+
 ## 3. 의존성 설정 - 필요한 타겟 간의 의존성을 설정함.
 add_dependencies(${PROJECT_NAME}_makeCsv ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_gps ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_gps_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #===================================================#
 

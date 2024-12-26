@@ -68,7 +68,6 @@ void *egoDataThread(void *p_Arg)
 vector<float> findTargetPoint(float current_x, float current_y)
 {
     float min_distance = numeric_limits<float>::max();
-    vector<float> dist(my_path.size(), 0);
     for (int i = closest_point_index; i < closest_point_index + 300 && i < my_path.size(); ++i)
     {
         float distance = getDistance(my_path[i][0], current_x, my_path[i][1], current_y);
@@ -121,7 +120,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "pure_pursuit");
     ros::NodeHandle node;
     ros::Rate loop_rate(50);
-    my_path = getPath("/src/testDrive/path/path.csv");
+    my_path = getPath("/src/testDrive/path/K-City.csv");
     pthread_t getEgoThread;
     pthread_create(&getEgoThread, NULL, egoDataThread, &node);
 

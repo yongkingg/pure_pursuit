@@ -1,0 +1,2 @@
+morai_msgs:testDrive
+-DCATKIN_DEVEL_PREFIX=/home/autonav/Desktop/pure_pursuit/devel -DCMAKE_INSTALL_PREFIX=/home/autonav/Desktop/pure_pursuit/install -G Unix Makefiles
