@@ -1,8 +1,0 @@
-prefix=/home/autonav/Desktop/pure_pursuit/devel
-
-Name: testDrive
-Description: Description of testDrive
-Version: 0.0.0
-Cflags: -I/home/autonav/Desktop/pure_pursuit/devel/include
-Libs: -L${prefix}/lib 
-Requires: roscpp rospy std_msgs message_runtime morai_msgs
