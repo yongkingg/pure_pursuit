@@ -1,4 +1,4 @@
- cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.0.2)
 project(testDrive)
 
 find_package(catkin REQUIRED COMPONENTS
@@ -55,9 +55,9 @@ add_executable(${PROJECT_NAME}_makeCsv src/makeCsv.cpp)
 add_executable(${PROJECT_NAME}_control src/control.cpp)
 add_executable(${PROJECT_NAME}_gps src/gps.cpp)
 add_executable(${PROJECT_NAME}_gps_control src/gps_control.cpp)
+add_executable(${PROJECT_NAME}_ridar src/ridar.cpp)
 
 ## 2. 종속성 설정 - 이 실행 파일이 필요한 라이브러리나 패키지에 링크되도록 설정함
-
 target_link_libraries(${PROJECT_NAME}_makeCsv
     ${catkin_LIBRARIES}
 )
@@ -72,12 +72,17 @@ target_link_libraries(${PROJECT_NAME}_gps_control
     ${catkin_LIBRARIES}
     Geographic
 )
+target_link_libraries(${PROJECT_NAME}_ridar
+    ${catkin_LIBRARIES}
+    Geographic
+)
 
 ## 3. 의존성 설정 - 필요한 타겟 간의 의존성을 설정함.
 add_dependencies(${PROJECT_NAME}_makeCsv ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_gps ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_gps_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_ridar ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #===================================================#
 

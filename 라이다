@@ -1,0 +1,20 @@
+/0_UDP_ground			지면 데이터 추출. 도로 평면 인식.
+/0_UDP_lane			차선 데이터 추출. 차선 유지 및 경로 계획.
+/0_UDP_others			지면, 차선을 제외한 객체 데이터.
+/0_UDP_rawdata			원시 LiDAR 데이터. 전처리 및 알고리즘 적용용.
+/1_ROI_PCL2			관심 영역으로 필터링된 포인트 클라우드.
+/2_1_RANSAC_others_PCL2	RANSAC으로 지면 제거 후 나머지 데이터.
+/2_2_RANSAC_walls_PCL2		RANSAC으로 벽 데이터만 추출.
+/2_3_RANSAC_points_RPA		특정 관심 영역에 대한 RANSAC 결과.
+/4_Clustering_OMA		클러스터링된 객체의 메타정보 포함 데이터.
+/4_Clustering_PCL2		클러스터링된 포인트 클라우드 데이터.
+
+
+
+x			float32		4	0
+y			float32		4	4
+z			float32		4	8
+intensity		float32		4	12
+ring			uint16			2	16
+패딩						2	18
+사용자 정의 필드	uint8[14]		14	20
