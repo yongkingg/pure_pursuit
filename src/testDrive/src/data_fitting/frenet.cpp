@@ -48,17 +48,16 @@ Point normal(Point tan_point)
     return norm_point;
 };
 
-Point findClosestPoint(Point current_point)
+Point findClosestPoint(Point current_point, vector<Point> path)
 {
     Point closest_point;
     float min_distance = std::numeric_limits<float>::max();
 
-    for (const auto &point : path)
+    for (int index = 0; index < path.size(); index++)
     {
-        Point ref_point = {point[0], point[1]};
+        Point ref_point = {path[index].x, path[index].y};
         float distance = normalize(current_point, ref_point);
 
-        // 자기 자신을 제외하기 위해 거리 0은 건너뜀
         if (distance > 1e-6 && distance < min_distance)
         {
             min_distance = distance;
@@ -69,45 +68,12 @@ Point findClosestPoint(Point current_point)
     return closest_point;
 }
 
-vector<Frenet> frenetCoord()
-{
-    vector<Frenet> frenet_point;
-    float s = 0.0;
-    for (int index = 0; (2 * index + 1) < path.size(); index++)
-    {
-        Point current_point, next_point;
-        current_point.x = path[2 * index][0];
-        current_point.y = path[2 * index][1];
-        next_point.x = path[2 * index + 1][0];
-        next_point.y = path[2 * index + 1][1];
-        float dx = next_point.x - current_point.x;
-        float dy = next_point.y - current_point.y;
-        if (dx == 0 || dy == 0)
-            continue;
-
-        Point ref_point = findClosestPoint(current_point);
-
-        Point point_T = tangent(current_point, next_point);
-        Point point_N = normal(point_T);
-        s += normalize(current_point, next_point);
-        float d = ((current_point.x - ref_point.x) * point_N.x +
-                   (current_point.y - ref_point.y) * point_N.y) /
-                  normalize(point_N.x, point_N.y);
-        if (d != 0)
-        {
-            Frenet point;
-            point.s = s;
-            point.d = d;
-
-            frenet_point.push_back(point);
-        }
-    }
-    return frenet_point;
-};
-
 vector<Segment> cubicSpline(vector<Point> pathPoint)
 {
     int n = pathPoint.size() - 1;
+    // l    : 주 대각선 값
+    // mu   : 삼대각선 행렬의 상부 대각선 요소
+    // z    : c 값을 계산하기 위해 사용되는 요소
     vector<float> h(n), alpha(n), l(n + 1), mu(n + 1), z(n + 1);
     vector<Segment> segments;
 
@@ -155,7 +121,7 @@ vector<Segment> cubicSpline(vector<Point> pathPoint)
     return segments;
 }
 
-float calcY(vector<Point> pathPoints, vector<Segment> segments, float targetX)
+float clcSplineY(vector<Point> pathPoints, vector<Segment> segments, float targetX)
 {
     int n = pathPoints.size() - 1;
     int i = -1;
@@ -189,48 +155,24 @@ float calcY(vector<Point> pathPoints, vector<Segment> segments, float targetX)
     return segments[i].a + segments[i].b * dx + segments[i].c * dx * dx + segments[i].d * dx * dx * dx;
 };
 
-vector<Point> removeDuplicatePoints(const vector<Point> &points)
-{
-    vector<Point> uniquePoints;
-    for (const auto &point : points)
-    {
-        bool isDuplicate = false;
-        for (const auto &uniquePoint : uniquePoints)
-        {
-            if (point.x == uniquePoint.x || point.y == uniquePoint.y)
-            {
-                isDuplicate = true;
-                break;
-            }
-        }
-        if (!isDuplicate)
-        {
-            uniquePoints.push_back(point);
-        }
-    }
-    return uniquePoints;
-}
-
 vector<Frenet> changeToFrenet(vector<Point> pathPoint, vector<Segment> segments)
 {
     vector<Frenet> frenetPath;
     float s = 0.0;
 
-    for (int i = 0; i < pathPoint.size(); i++)
+    for (int i = 1; i < pathPoint.size() - 1; i++)
     {
-        float x = pathPoint[i].x;
-        float y = pathPoint[i].y;
+        Point cur = {pathPoint[i].x, pathPoint[i].y};
+        Point next = {pathPoint[i + 1].x, pathPoint[i + 1].y};
+        s += normalize(cur, next);
 
-        float splineY = calcY(pathPoint, segments, x);
-        if (i > 0)
-        {
-            float dx = pathPoint[i].x - pathPoint[i - 1].x;
-            float dy = pathPoint[i].y - pathPoint[i - 1].y;
-            s += sqrt(dx * dx + dy * dy);
-        }
+        float splineY = clcSplineY(pathPoint, segments, cur.x);
+        Point tan_point = tangent(cur, next);
+        Point norm_point = normal(tan_point);
+        float normalNorm = normalize(norm_point.x, norm_point.y);
 
-        double d = y - splineY;
-
+        float x_ref = cur.x;
+        float d = ((cur.x - x_ref + cur.y - splineY) / normalNorm);
         Frenet frenet;
         frenet.s = s;
         frenet.d = d;
@@ -239,22 +181,6 @@ vector<Frenet> changeToFrenet(vector<Point> pathPoint, vector<Segment> segments)
     }
 
     return frenetPath;
-}
-
-vector<int> getHighVarianceIndices(const vector<Frenet> &frenetPath, double threshold)
-{
-    vector<int> highVarianceIndices;
-
-    for (size_t i = 1; i < frenetPath.size(); ++i)
-    {
-        double deltaD = abs(frenetPath[i].d - frenetPath[i - 1].d);
-        if (deltaD > threshold)
-        {
-            highVarianceIndices.push_back(i); // 변화량이 큰 인덱스를 저장
-        }
-    }
-
-    return highVarianceIndices;
 }
 
 Point frenetToXY(double s, double d, const vector<Segment> &segments, const vector<Point> &path)
@@ -320,6 +246,28 @@ vector<Point> convertFrenetToXY(const vector<Frenet> &frenetPath, const vector<S
     return xyPath;
 }
 
+vector<Point> removeDuplicatePoints(const vector<Point> &points)
+{
+    vector<Point> uniquePoints;
+    for (const auto &point : points)
+    {
+        bool isDuplicate = false;
+        for (const auto &uniquePoint : uniquePoints)
+        {
+            if (point.x == uniquePoint.x || point.y == uniquePoint.y)
+            {
+                isDuplicate = true;
+                break;
+            }
+        }
+        if (!isDuplicate)
+        {
+            uniquePoints.push_back(point);
+        }
+    }
+    return uniquePoints;
+}
+
 int main()
 {
     path = getPath("/src/testDrive/path/K-City.csv");
@@ -334,21 +282,8 @@ int main()
     pathPoint = removeDuplicatePoints(pathPoint);
     vector<Segment> cubicSegments = cubicSpline(pathPoint);
 
-    cout << "Path Point : " << pathPoint.size() << endl;
-    cout << "Cubic Segments : " << cubicSegments.size() << endl;
     vector<Frenet> tnbPath = changeToFrenet(pathPoint, cubicSegments);
-
-    // // d 값 변화량이 큰 구간 탐지
-    // double threshold = 2000; // 예: 변화량 임계값 설정
-    // vector<int> highVarianceIndices = getHighVarianceIndices(tnbPath, threshold);
-
-    // // 탐지된 인덱스 출력
-    // cout << "Indices with high d variance:" << endl;
-    // for (int idx : highVarianceIndices)
-    // {
-    //     cout << "Index: " << idx << ", s: " << tnbPath[idx].s << ", d: " << tnbPath[idx].d << endl;
-    // }
-    // saveFrenetToCSV(tnbPath, "/src/testDrive/path/K-City-frenet.csv");
+    saveFrenetToCSV(tnbPath, "/src/testDrive/path/K-City-frenet.csv");
 
     vector<Point> xyPath = convertFrenetToXY(tnbPath, cubicSegments, pathPoint);
     saveXYToCSV(xyPath, "/src/testDrive/path/K-City-reconstructed.csv");
