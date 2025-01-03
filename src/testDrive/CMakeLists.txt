@@ -60,6 +60,7 @@ add_executable(${PROJECT_NAME}_gps_control src/gps_control.cpp)
 add_executable(${PROJECT_NAME}_ridar src/ridar.cpp)
 add_executable(${PROJECT_NAME}_frenet src/data_fitting/frenet.cpp)
 add_executable(${PROJECT_NAME}_poly src/data_fitting/poly_reg.cpp)
+add_executable(${PROJECT_NAME}_ransac_pcl src/ridar/ransac_pcl.cpp)
 add_executable(${PROJECT_NAME}_ransac src/ridar/ransac.cpp)
 add_executable(${PROJECT_NAME}_coord src/ridar/coord.cpp)
 add_executable(${PROJECT_NAME}_clustering src/ridar/clustering.cpp)
@@ -89,6 +90,9 @@ target_link_libraries(${PROJECT_NAME}_frenet
 target_link_libraries(${PROJECT_NAME}_poly
     ${catkin_LIBRARIES}
 )
+target_link_libraries(${PROJECT_NAME}_ransac_pcl
+    ${catkin_LIBRARIES}
+)
 target_link_libraries(${PROJECT_NAME}_ransac
     ${catkin_LIBRARIES}
 )
@@ -108,6 +112,7 @@ add_dependencies(${PROJECT_NAME}_gps_control ${${PROJECT_NAME}_EXPORTED_TARGETS}
 add_dependencies(${PROJECT_NAME}_ridar ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_frenet ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_poly ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_ransac_pcl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_ransac ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_coord ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_clustering ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
