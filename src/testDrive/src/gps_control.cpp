@@ -14,8 +14,8 @@
 
 using namespace std;
 
-float look_distance = 7.0; // lookahead 거리
-float wheel_base = 2.5;    // 차량의 휠베이스
+float look_distance = 10.0; // lookahead 거리
+float wheel_base = 2.5;     // 차량의 휠베이스
 bool flag = true;
 int closest_point_index = 0;
 double steering_angle = 0;
