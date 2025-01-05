@@ -1,10 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# 첫 번째 데이터 읽기 (UTM 좌표)
 data1 = pd.read_csv('./K-City.csv', header=None, names=['utm_x', 'utm_y'])
-
-# 두 번째 데이터 읽기 (Frenet 좌표)
 data2 = pd.read_csv('./K-City-frenet.csv', header=None, names=['s', 'd'])
 data3 = pd.read_csv('./K-City-reconstructed.csv', header=None, names=['utm_x', 'utm_y'])
 
