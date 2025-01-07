@@ -133,7 +133,6 @@ vector<vector<float>> getPath(string file_path)
     return path_data;
 }
 
-
 vector<vector<double>> getData(string file_path)
 {
     string file;

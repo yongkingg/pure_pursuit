@@ -57,13 +57,10 @@ add_executable(${PROJECT_NAME}_makeCsv src/makeCsv.cpp)
 add_executable(${PROJECT_NAME}_control src/control.cpp)
 add_executable(${PROJECT_NAME}_gps src/gps.cpp)
 add_executable(${PROJECT_NAME}_gps_control src/gps_control.cpp)
-add_executable(${PROJECT_NAME}_ridar src/ridar.cpp)
 add_executable(${PROJECT_NAME}_frenet src/data_fitting/frenet.cpp)
 add_executable(${PROJECT_NAME}_poly src/data_fitting/poly_reg.cpp)
-add_executable(${PROJECT_NAME}_ransac_pcl src/ridar/ransac_pcl.cpp)
 add_executable(${PROJECT_NAME}_ransac src/ridar/ransac.cpp)
-add_executable(${PROJECT_NAME}_coord src/ridar/coord.cpp)
-add_executable(${PROJECT_NAME}_clustering src/ridar/clustering.cpp)
+add_executable(${PROJECT_NAME}_obstacle src/ridar/obstacle.cpp)
 
 ## 2. 종속성 설정 - 이 실행 파일이 필요한 라이브러리나 패키지에 링크되도록 설정함
 target_link_libraries(${PROJECT_NAME}_makeCsv
@@ -80,42 +77,31 @@ target_link_libraries(${PROJECT_NAME}_gps_control
     ${catkin_LIBRARIES}
     Geographic
 )
-target_link_libraries(${PROJECT_NAME}_ridar
-    ${catkin_LIBRARIES}
-    Geographic
-)
 target_link_libraries(${PROJECT_NAME}_frenet
     ${catkin_LIBRARIES}
 )
 target_link_libraries(${PROJECT_NAME}_poly
     ${catkin_LIBRARIES}
 )
-target_link_libraries(${PROJECT_NAME}_ransac_pcl
-    ${catkin_LIBRARIES}
-)
 target_link_libraries(${PROJECT_NAME}_ransac
     ${catkin_LIBRARIES}
 )
-target_link_libraries(${PROJECT_NAME}_coord
+
+target_link_libraries(${PROJECT_NAME}_obstacle
     ${catkin_LIBRARIES}
     Geographic
 )
-target_link_libraries(${PROJECT_NAME}_clustering
-    ${catkin_LIBRARIES}
-    Geographic
-)
+
 ## 3. 의존성 설정 - 필요한 타겟 간의 의존성을 설정함.
 add_dependencies(${PROJECT_NAME}_makeCsv ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_gps ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_gps_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(${PROJECT_NAME}_ridar ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_frenet ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_poly ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(${PROJECT_NAME}_ransac_pcl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_ransac ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(${PROJECT_NAME}_coord ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(${PROJECT_NAME}_clustering ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_obstacle ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 #===================================================#
 
 #====================라이브러리 제작====================#
