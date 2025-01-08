@@ -51,7 +51,6 @@ void getGPSData(const morai_msgs::GPSMessage::ConstPtr &gpsData)
     wgs84.altitude = 0;
     enu = wgs84ToENU(wgs84);
     utm = enuToUTM(enu);
-    cout << "UTM X : " << utm.utm_x << " UTM Y : " << utm.utm_y << endl;
     gps_last_time = steady_clock::now();
 }
 
@@ -111,12 +110,12 @@ int main(int argc, char **argv)
         carInfo.utm_x = utm.utm_x;
         carInfo.utm_y = utm.utm_y;
 
-        // cout << "========================" << endl;
-        // cout << "Mode : " << carInfo.mode << endl;
-        // cout << "UTM_X : " << carInfo.utm_x << endl;
-        // cout << "UTM_Y : " << carInfo.utm_y << endl;
-        // cout << "HEADING : " << carInfo.heading << endl;
-        // cout << "YAW : " << carInfo.yaw << endl;
+        cout << "========================" << endl;
+        cout << "Mode : " << carInfo.mode << endl;
+        cout << "1 UTM_X : " << carInfo.utm_x << endl;
+        cout << "2 UTM_Y : " << carInfo.utm_y << endl;
+        cout << "HEADING : " << carInfo.heading << endl;
+        cout << "YAW : " << carInfo.yaw << endl;
 
         infoPublisher.publish(carInfo);
         rate.sleep();

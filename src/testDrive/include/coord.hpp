@@ -162,44 +162,65 @@ ENU utmToEnu(double utm_x, double utm_y)
     return wgs84ToENU(wgs84);
 }
 
-UTM enuToUTM(ENU enu, vector<double> offset)
+// UTM enuToUTM(ENU enu, vector<double> offset)
+// {
+//     double offset_utm[2] = {302459.942, 4122635.537};
+//     WGS84 ref_WGS = utmToWgs84(ref_UTM[0], ref_UTM[1]);
+//     GeographicLib::Geocentric earth(GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f());
+//     GeographicLib::LocalCartesian local(ref_WGS.latitude, ref_WGS.longitude, ref_WGS.altitude, earth);
+//     double lat, lon, alt;
+//     local.Reverse(enu.East, enu.North, enu.Up, lat, lon, alt);
+
+//     double easting, northing;
+//     int zone;
+//     bool northHemisphere;
+//     GeographicLib::UTMUPS::Forward(lat, lon, zone, northHemisphere, easting, northing);
+
+//     UTM utm;
+//     // cout << "변환 과정 easting : " << easting << endl;
+//     // cout << "변환 과정 northing : " << northing << endl;
+//     utm.utm_x = easting - offset[0];
+//     utm.utm_y = northing - offset[1];
+//     // cout << "변환 이후 utm x : " << utm.utm_x << endl;
+//     // cout << "변환 이후 utm y : " << utm.utm_y << endl;
+
+//     return utm;
+// }
+
+UTM enuToUTM(ENU enu)
 {
+    // double offset_utm[2] = {302459.942, 4122635.537};
+    // WGS84 ref_WGS;
+    // ref_WGS.latitude = 37.23923851363698;
+    // ref_WGS.longitude = 126.7731608619718;
+    // GeographicLib::Geocentric earth(GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f());
+    // GeographicLib::LocalCartesian local(ref_WGS.latitude, ref_WGS.longitude, ref_WGS.altitude, earth);
+    // double lat, lon, alt;
+    // local.Reverse(enu.East, enu.North, enu.Up, lat, lon, alt);
+    // // cout << "REF LAT : " << ref_WGS.latitude << "REF LON : " << ref_WGS.longitude << endl;
+    // // cout << "EAST : " << enu.East << " NORTH : " << enu.North << endl;
+    // // cout << "LAT : " << lat << " LON : " << lon << endl;
+
+    // double easting, northing;
+    // int zone;
+    // bool northHemisphere;
+    // GeographicLib::UTMUPS::Forward(lat, lon, zone, northHemisphere, easting, northing);
+
+    // UTM utm;
+    // // cout << "변환 과정 easting : " << easting << endl;
+    // // cout << "변환 과정 northing : " << northing << endl;
+    // utm.utm_x = easting - offset_utm[0];
+    // utm.utm_y = northing - offset_utm[1];
+    // // cout << "변환 이후 utm x : " << utm.utm_x << endl;
+    // // cout << "변환 이후 utm y : " << utm.utm_y << endl;
+
+
     double offset_utm[2] = {302459.942, 4122635.537};
     WGS84 ref_WGS = utmToWgs84(ref_UTM[0], ref_UTM[1]);
     GeographicLib::Geocentric earth(GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f());
     GeographicLib::LocalCartesian local(ref_WGS.latitude, ref_WGS.longitude, ref_WGS.altitude, earth);
     double lat, lon, alt;
     local.Reverse(enu.East, enu.North, enu.Up, lat, lon, alt);
-
-    double easting, northing;
-    int zone;
-    bool northHemisphere;
-    GeographicLib::UTMUPS::Forward(lat, lon, zone, northHemisphere, easting, northing);
-
-    UTM utm;
-    // cout << "변환 과정 easting : " << easting << endl;
-    // cout << "변환 과정 northing : " << northing << endl;
-    utm.utm_x = easting - offset[0];
-    utm.utm_y = northing - offset[1];
-    // cout << "변환 이후 utm x : " << utm.utm_x << endl;
-    // cout << "변환 이후 utm y : " << utm.utm_y << endl;
-
-    return utm;
-}
-
-UTM enuToUTM(ENU enu)
-{
-    double offset_utm[2] = {302459.942, 4122635.537};
-    WGS84 ref_WGS;
-    ref_WGS.latitude = 37.23923851363698;
-    ref_WGS.longitude = 126.7731608619718;
-    GeographicLib::Geocentric earth(GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f());
-    GeographicLib::LocalCartesian local(ref_WGS.latitude, ref_WGS.longitude, ref_WGS.altitude, earth);
-    double lat, lon, alt;
-    local.Reverse(enu.East, enu.North, enu.Up, lat, lon, alt);
-    // cout << "REF LAT : " << ref_WGS.latitude << "REF LON : " << ref_WGS.longitude << endl;
-    // cout << "EAST : " << enu.East << " NORTH : " << enu.North << endl;
-    // cout << "LAT : " << lat << " LON : " << lon << endl;
 
     double easting, northing;
     int zone;
