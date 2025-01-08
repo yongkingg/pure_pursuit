@@ -59,7 +59,7 @@ add_executable(${PROJECT_NAME}_gps src/gps.cpp)
 add_executable(${PROJECT_NAME}_gps_control src/gps_control.cpp)
 add_executable(${PROJECT_NAME}_frenet src/data_fitting/frenet.cpp)
 add_executable(${PROJECT_NAME}_poly src/data_fitting/poly_reg.cpp)
-add_executable(${PROJECT_NAME}_ransac src/ridar/ransac.cpp)
+add_executable(${PROJECT_NAME}_ransac src/data_fitting/ransac.cpp)
 add_executable(${PROJECT_NAME}_obstacle src/ridar/obstacle.cpp)
 
 ## 2. 종속성 설정 - 이 실행 파일이 필요한 라이브러리나 패키지에 링크되도록 설정함

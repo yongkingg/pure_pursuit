@@ -1,153 +1,115 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <csv.hpp>
+#include <eigen3/Eigen/Dense>
 
 using namespace std;
+using namespace Eigen;
 
-vector<vector<double>> transposeMatrix(const vector<vector<double>> mat)
+struct PolyReg
 {
-    int rows = mat.size();
-    int cols = mat[0].size();
-    vector<vector<double>> result(cols, vector<double>(rows, 0.0));
+    vector<double> x;
+    double y;
+};
 
-    for (int i = 0; i < rows; ++i)
-    {
-        for (int j = 0; j < cols; ++j)
-        {
-            result[j][i] = mat[i][j];
+
+vector<vector<double>> polyTransform(vector<Point> samples, int degree) {
+    vector<vector<double>> result; 
+    for (int i = 0; i < samples.size(); i++) {
+        vector<double> transformedX;
+
+        for (int j = 0; j <= degree; j++) { 
+            transformedX.push_back(pow(samples[i].x, j));
         }
+
+        result.push_back(transformedX);
     }
 
     return result;
 }
 
-vector<vector<double>> multiplyMatrices(const vector<vector<double>> mat1, const vector<vector<double>> mat2)
-{
-    int rows = mat1.size();
-    int cols = mat2[0].size();
-    int common = mat2.size();
-    vector<vector<double>> result(rows, vector<double>(cols, 0.0));
+vector<double> getCoefficients(vector<vector<double>> x, vector<double> y, int degree) {
+    int sampleSize = x.size();
 
-    for (int i = 0; i < rows; ++i)
-    {
-        for (int j = 0; j < cols; ++j)
-        {
-            for (int k = 0; k < common; ++k)
-            {
-                result[i][j] += mat1[i][k] * mat2[k][j];
-            }
+    MatrixXd X(sampleSize, degree+1);
+    VectorXd Y(sampleSize);
+
+    for (int i = 0; i < sampleSize; i++) {
+        for (int j = 0; j < degree + 1; j++) {
+            X(i, j) = x[i][j];
         }
+        Y(i) = y[i];
     }
+
+    VectorXd beta = (X.transpose() * X).inverse() * X.transpose() * Y;
+    vector<double> result(beta.data(), beta.data() + beta.size());
 
     return result;
 }
 
-vector<vector<double>> invertMatrix(const vector<vector<double>> mat)
+void savePolyResults(const vector<double> &points, const string &filename)
 {
-    int n = mat.size();
-    vector<vector<double>> result(mat);
-
-    vector<vector<double>> identity(n, vector<double>(n, 0.0));
-    for (int i = 0; i < n; ++i)
+    char cwd[1024];
+    string filePath;
+    if (getcwd(cwd, sizeof(cwd)) != nullptr)
     {
-        identity[i][i] = 1.0;
+        filePath = string(cwd) + "/" + filename;
+    }
+    else
+    {
+        cerr << "Error: Unable to get current working directory" << endl;
+        return;
     }
 
-    for (int i = 0; i < n; ++i)
+    ofstream csv_file(filePath);
+    if (!csv_file.is_open())
     {
-        double pivot = result[i][i];
-        if (fabs(pivot) < 1e-9)
-        {
-            return {};
-        }
+        cerr << "Error: Unable to open file " << filePath << endl;
+        return;
+    }
 
-        for (int j = 0; j < n; ++j)
-        {
-            result[i][j] /= pivot;
-            identity[i][j] /= pivot;
-        }
-
-        for (int k = 0; k < n; ++k)
-        {
-            if (k != i)
-            {
-                double factor = result[k][i];
-                for (int j = 0; j < n; ++j)
-                {
-                    result[k][j] -= factor * result[i][j];
-                    identity[k][j] -= factor * identity[i][j];
-                }
-            }
+    // 모델 계수 저장
+    for (int index = 0; index < points.size(); index++) {
+        csv_file << points[index];
+        if (index != points.size() - 1) {
+            csv_file << " , ";
         }
     }
-    return identity;
+
+    csv_file.close(); // 파일 닫기
+    cout << "Results saved to " << filePath << endl;
 }
 
-vector<double> polyRegression(const vector<double> x, const vector<double> y, int degree)
-{
-    int n = x.size();
-    vector<vector<double>> X(n, vector<double>(degree + 1, 1.0));
-
-    // 다항식 확장
-    for (int i = 0; i < n; ++i)
-    {
-        for (int j = 1; j <= degree; ++j)
-        {
-            X[i][j] = pow(x[i], j);
-        }
-    }
-
-    vector<vector<double>> Xt = transposeMatrix(X);
-
-    vector<vector<double>> XtX = multiplyMatrices(Xt, X);
-
-    vector<vector<double>> XtX_inv = invertMatrix(XtX);
-
-    vector<vector<double>> XtY(degree + 1, vector<double>(1, 0.0));
-    for (int i = 0; i <= degree; ++i)
-    {
-        for (int j = 0; j < n; ++j)
-        {
-            XtY[i][0] += Xt[i][j] * y[j];
-        }
-    }
-
-    vector<vector<double>> betaMat = multiplyMatrices(XtX_inv, XtY);
-
-    vector<double> beta(degree + 1);
-    for (int i = 0; i <= degree; ++i)
-    {
-        beta[i] = betaMat[i][0];
-    }
-
-    return beta;
-}
 
 int main()
 {
-    vector<double> x = {1, 2, 3, 4, 5};
-    vector<double> y = {1.2, 1.9, 3.2, 3.8, 5.1};
-
-    vector<double> coefficients_2 = polyRegression(x, y, 2);
-    vector<double> coefficients_3 = polyRegression(x, y, 3);
-    vector<double> coefficients_4 = polyRegression(x, y, 4);
-
-    cout << "2 Coefficients:" << endl;
-    for (int i = 0; i < coefficients_2.size(); ++i)
+    vector<vector<double>> data = getData("/src/testDrive/path/data.csv");
+    vector<Point> samples;
+    for (int index = 0; index < data.size(); index++)
     {
-        cout << "Beta[" << i << "] = " << coefficients_2[i] << endl;
+        Point point;
+        point.x = data[index][0];
+        point.y = data[index][1];
+        samples.push_back(point);
     }
 
-    cout << "3 Coefficients:" << endl;
-    for (int i = 0; i < coefficients_3.size(); ++i)
-    {
-        cout << "Beta[" << i << "] = " << coefficients_3[i] << endl;
+    int degree = 3;
+    vector<vector<double>> polyResultX = polyTransform(samples, degree);
+    vector<double> y;
+    for (const auto sample : samples) {
+        y.push_back(sample.y);
     }
 
-    cout << "4 Coefficients:" << endl;
-    for (int i = 0; i < coefficients_4.size(); ++i)
-    {
-        cout << "Beta[" << i << "] = " << coefficients_4[i] << endl;
+    vector<double> coefficents = getCoefficients(polyResultX, y, degree);
+
+    savePolyResults(coefficents, "src/testDrive/path/polyResult.csv");
+    for(const auto item : coefficents) {
+        cout << item << endl;
     }
+    // /home/yongkingg/Desktop/pure_pursuit/
+    // /home/yongkingg/Desktop/pure_pursuit/src/testDrive/path/polyResult.csv
+    // /home/yongkingg/Desktop/pure_pursuit/testDrive/path/polyResult.csv
+
     return 0;
 }
