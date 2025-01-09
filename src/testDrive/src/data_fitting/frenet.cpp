@@ -6,6 +6,7 @@
 using namespace std;
 vector<vector<float>> path;
 
+// f(x) = a + b(x-x') + c(x-x')^2 + d(x-x')^3
 struct Segment
 {
     float a, b, c, d;
@@ -19,6 +20,11 @@ float normalize(float x, float y, float z = 0)
 float normalize(Point current_point, Point next_point)
 {
     return sqrt(pow(current_point.x - next_point.x, 2) + pow(next_point.y - current_point.y, 2));
+}
+
+float normalize(float x1, float x2, float y1, float y2)
+{
+    return sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
 }
 
 Point tangent(Point current_point, Point next_point)
@@ -47,26 +53,6 @@ Point normal(Point tan_point)
     norm_point.y = tan_point.x;
     return norm_point;
 };
-
-Point findClosestPoint(Point current_point, vector<Point> path)
-{
-    Point closest_point;
-    float min_distance = std::numeric_limits<float>::max();
-
-    for (int index = 0; index < path.size(); index++)
-    {
-        Point ref_point = {path[index].x, path[index].y};
-        float distance = normalize(current_point, ref_point);
-
-        if (distance > 1e-6 && distance < min_distance)
-        {
-            min_distance = distance;
-            closest_point = ref_point;
-        }
-    }
-
-    return closest_point;
-}
 
 vector<Segment> cubicSpline(vector<Point> pathPoint)
 {
@@ -152,8 +138,28 @@ float clcSplineY(vector<Point> pathPoints, vector<Segment> segments, float targe
     }
 
     double dx = targetX - pathPoints[i].x;
-    return segments[i].a + segments[i].b * dx + segments[i].c * dx * dx + segments[i].d * dx * dx * dx;
+    return segments[i].a + segments[i].b * dx + segments[i].c * pow(dx, 2) + segments[i].d * pow(dx, 3);
 };
+
+Point findClosestPoint(Point current_point, float splineY, vector<Point> path, vector<Segment> segments)
+{
+    Point closest_point;
+    float min_distance = std::numeric_limits<float>::max();
+
+    for (int index = 0; index < path.size(); index++)
+    {
+        Point ref_point = {path[index].x, path[index].y};
+        float distance = normalize(current_point.x, path[index].x, current_point.y, splineY);
+
+        if (distance > 1e-6 && distance < min_distance)
+        {
+            min_distance = distance;
+            closest_point = ref_point;
+        }
+    }
+
+    return closest_point;
+}
 
 vector<Frenet> changeToFrenet(vector<Point> pathPoint, vector<Segment> segments)
 {
@@ -162,17 +168,27 @@ vector<Frenet> changeToFrenet(vector<Point> pathPoint, vector<Segment> segments)
 
     for (int i = 1; i < pathPoint.size() - 1; i++)
     {
+        Point prev = {pathPoint[i - 1].x, pathPoint[i - 1].y};
         Point cur = {pathPoint[i].x, pathPoint[i].y};
         Point next = {pathPoint[i + 1].x, pathPoint[i + 1].y};
-        s += normalize(cur, next);
 
+        // S : 현재까지의 누적 거리이므로..
+        s += normalize(prev, cur);
+
+        // Cubic Spline으로 만들어낸 곡선과의 최소거리 점 찾기
         float splineY = clcSplineY(pathPoint, segments, cur.x);
-        Point tan_point = tangent(cur, next);
-        Point norm_point = normal(tan_point);
-        float normalNorm = normalize(norm_point.x, norm_point.y);
+        Point closest_point = findClosestPoint(cur, splineY, pathPoint, segments);
 
-        float x_ref = cur.x;
-        float d = ((cur.x - x_ref + cur.y - splineY) / normalNorm);
+        Point tan_point = tangent(cur, next);
+
+        Point norm_point = normal(tan_point);
+        float normValue = normalize(norm_point.x, norm_point.y);
+        float normalNorm = (normValue < 1e-6) ? 1.0f : normValue;
+
+        float dx = cur.x - closest_point.x;
+        float dy = cur.y - closest_point.y;
+        float d = (dx * norm_point.x + dy * norm_point.y) / normalNorm;
+
         Frenet frenet;
         frenet.s = s;
         frenet.d = d;
@@ -280,8 +296,11 @@ int main()
         pathPoint.push_back(point);
     }
     pathPoint = removeDuplicatePoints(pathPoint);
+
+    // cubic spline으로 기존 데이터를 연결하는 보간 선 생성
     vector<Segment> cubicSegments = cubicSpline(pathPoint);
 
+    // 만들어진 곡선과 주어진 점을 관찰하여 가장 가까운 점 찾아가며 frenet 곡선 생성..
     vector<Frenet> tnbPath = changeToFrenet(pathPoint, cubicSegments);
     saveFrenetToCSV(tnbPath, "/src/testDrive/path/K-City-frenet.csv");
 

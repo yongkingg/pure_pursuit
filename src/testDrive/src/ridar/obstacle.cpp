@@ -63,7 +63,8 @@ void getRidarData(const sensor_msgs::PointCloud2::ConstPtr &msg)
 
     for (int i = 0; i < points.size(); i++)
     {
-        cout << "Obstacle X : " << utm_points[i].utm_x << " Y : " << utm_points[i].utm_y << endl;
+        cout << "Obstacle EAST : " << enu_points[i].East << " North : " << enu_points[i].North << endl;
+        // cout << "Obstacle X : " << utm_points[i].utm_x << " Y : " << utm_points[i].utm_y << endl;
     }
 }
 
