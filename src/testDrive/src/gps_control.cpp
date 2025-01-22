@@ -90,6 +90,7 @@ void pubCtrlCmd()
     ctrl_cmd.longlCmdType = 2;
     ctrl_cmd.velocity = 20.0;
     ctrl_cmd.steering = steering_angle;
+    cout << steering_angle << endl;
     ctrl_cmd_pub.publish(ctrl_cmd);
 }
 
@@ -102,7 +103,7 @@ void getInfoData(const testDrive::carInfo &data)
     current_y = data.utm_y;
 
     mode == "ENU" ? heading = 90 - radToDeg(data.yaw) : heading = data.heading;
-    cout << "Heading : " << heading << endl;
+    // cout << "Heading : " << radToDeg(data.yaw) << endl;
     // cout << "========================" << endl;
     // cout << "Mode : " << data.mode << endl;
     // cout << "UTM_X : " << data.utm_x << endl;

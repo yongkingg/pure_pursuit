@@ -146,6 +146,7 @@ Euler quatToEnuEuler(Quaternion q)
     ned_euler.roll = atan2(2 * (q.w * q.x + q.y * q.z), 1 - 2 * (pow(q.x, 2) + pow(q.y, 2)));
     ned_euler.pitch = asin(2 * (q.w * q.y - q.z * q.x));
     ned_euler.yaw = atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (pow(q.y, 2) + pow(q.z, 2)));
+    cout << "yaw : " << radToDeg(ned_euler.yaw) << endl;
 
     Euler enu_euler;
     enu_euler.roll = ned_euler.roll;

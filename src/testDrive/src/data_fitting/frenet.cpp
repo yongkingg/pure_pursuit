@@ -226,12 +226,15 @@ Point frenetToXY(double s, double d, const vector<Segment> &segments, const vect
     }
 
     // Step 2: 기준 경로에서 정확한 (x, y) 계산
+    // accumulatedS : 누적 거리
+    // remainingS : 남은 거리
     double remainingS = s - accumulatedS;
     double dx = path[segmentIndex + 1].x - path[segmentIndex].x;
     double dy = path[segmentIndex + 1].y - path[segmentIndex].y;
     double segmentLength = sqrt(dx * dx + dy * dy);
 
     // 기준 점
+    // 기준 경로 상에서 누적 거리 s가 위치하는 점을 나타냄.
     double baseX = path[segmentIndex].x + (remainingS / segmentLength) * dx;
     double baseY = path[segmentIndex].y + (remainingS / segmentLength) * dy;
 
